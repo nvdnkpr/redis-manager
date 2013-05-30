@@ -8,14 +8,16 @@ Simple library to share redis clients in a code base
 
 ## Usage
 
-    var redisManager = require('redis-manager');
-    var client = redisManager.getClient(); // Same options as `redis.createClient`, is an instance of `redis`'s client
+```js
+var redisManager = require('redis-manager');
+var client = redisManager.getClient(); // Same options as `redis.createClient`, is an instance of `redis`'s client
 
-    client.set('key', 'val', callback);
-    // ...
+client.set('key', 'val', callback);
+// ...
 
-    // All done? Free the client so the manager can shut it down if no one is using it, anymore.
-    redisManager.freeClient(client);
+// All done? Free the client so the manager can shut it down if no one is using it, anymore.
+redisManager.freeClient(client);
+```
 
 ## License (MIT)
 
