@@ -1,0 +1,28 @@
+{
+	"contributors": [
+		"David Ellis <d.f.ellis@ieee.org>"
+	],
+	"name": "redis-manager",
+	"version": "0.1.0",
+	"description": "Simple library to share redis clients in a code base",
+    "keywords": ["redis", "manager"],
+    "homepage": "https://github.com/uber/redis-manager/",
+    "bugs": "https://github.com/uber/redis-manager/issues",
+    "repository": {
+        "type": "git",
+        "url": "git://git@github.com:uber/redis-manager.git"
+    },
+	"main": "lib/redis-manager.js",
+    "dependencies": {
+        "redis": "*"
+    },
+    "devDependencies": {
+        "nodeunit": "*",
+        "jshint": "*"
+    },
+    "scripts": {
+        "realpublish": "./prepublish.sh",
+        "jshint": "test/jshint.sh",
+        "test": "npm run jshint && nodeunit test/*.js"
+    }
+}
