@@ -3,7 +3,7 @@
 		"David Ellis <d.f.ellis@ieee.org>"
 	],
 	"name": "redis-manager",
-	"version": "0.0.9",
+	"version": "0.1.0",
 	"description": "Simple library to share redis clients in a code base",
     "keywords": ["redis", "manager"],
     "homepage": "https://github.com/uber/redis-manager/",
