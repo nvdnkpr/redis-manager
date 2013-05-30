@@ -6,10 +6,11 @@ npm test
 # Build documentation and commit to the gh-pages branch, then go back to master branch
 docco lib/redis-manager.js
 git stash
-mv docs docs-new
 git checkout gh-pages
-rm -rf docs
-mv docs-new docs
+mv docs/* .
+rmdir docs
+rm index.html
+mv redis-manager.html index.html
 git commit -am "Automatic documentation for version $npm_package_version"
 git checkout master
 git stash pop
