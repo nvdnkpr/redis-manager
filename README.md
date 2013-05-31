@@ -1,5 +1,7 @@
 # redis-manager
 
+[![Build Status](https://travis-ci.org/uber/redis-manager.png?branch=master)](https://travis-ci.org/uber/redis-manager)
+
 Simple library to share redis clients in a code base
 
 ## Install
