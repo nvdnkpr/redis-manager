@@ -19,7 +19,9 @@
     "devDependencies": {
         "docco": "*",
         "nodeunit": "*",
-        "jshint": "*"
+        "jshint": "*",
+        "jscoverage": "*",
+        "coveralls": "*"
     },
     "scripts": {
         "realpublish": "./prepublish.sh",
