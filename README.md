@@ -21,6 +21,10 @@ client.set('key', 'val', callback);
 redisManager.freeClient(client);
 ```
 
+### Pub/sub wrinkle
+
+The Redis library, whenever a `subscribe` method is called, [puts the instance in a special mode that disables all other Redis commands](https://github.com/mranney/node_redis#publish--subscribe). Therefore this kind of redis connection cannot be pooled unless distinguished during configuration, so a `pubsub` property has been added to the `options` parameter when getting a client. If you need pubsub Redis usage, be sure to pass in this flag. (Currently works on the honor system.)
+
 ## License (MIT)
 
 Copyright (C) 2013 by Uber Technologies, Inc
