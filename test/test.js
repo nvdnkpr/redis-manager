@@ -35,10 +35,10 @@ exports.freeClients = function(test) {
     test.done();
 };
 
-exports.pubsub = function(test) {
+exports.sub = function(test) {
     test.expect(1);
     var client1 = redisManager.getClient(6379, 'localhost');
-    var client2 = redisManager.getClient(6379, 'localhost', { pubsub: true });
+    var client2 = redisManager.getClient(6379, 'localhost', { sub: true });
     test.notEqual(client1, client2);
     redisManager.freeClient(client1);
     redisManager.freeClient(client2);
