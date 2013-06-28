@@ -45,6 +45,16 @@ exports.sub = function(test) {
     test.done();
 };
 
+exports.select = function(test) {
+    test.expect(1);
+    var client1 = redisManager.getClient(6379, 'localhost');
+    var client2 = redisManager.getClient(6379, 'localhost', { select: 1 });
+    test.notEqual(client1, client2);
+    redisManager.freeClient(client1);
+    redisManager.freeClient(client2);
+    test.done();
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();
