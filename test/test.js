@@ -55,6 +55,16 @@ exports.select = function(test) {
     test.done();
 };
 
+exports.outOfOrderArgs = function(test) {
+    test.expect(1);
+    var client1 = redisManager.getClient(6379, 'localhost');
+    var client2 = redisManager.getClient('localhost', 6379);
+    test.equal(client1, client2);
+    redisManager.freeClient(client1);
+    redisManager.freeClient(client2);
+    test.done();
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();

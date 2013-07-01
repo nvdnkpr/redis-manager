@@ -12,7 +12,7 @@ Simple library to share redis clients in a code base
 
 ```js
 var redisManager = require('redis-manager');
-var client = redisManager.getClient(); // Same options as `redis.createClient`, is an instance of `redis`'s client
+var client = redisManager.getClient(); // Same options as `redis.createClient`, is an instance of `redis`'s client, but the args can be specified in any order desired
 
 client.set('key', 'val', callback);
 // ...
