@@ -1,46 +1,265 @@
-<!DOCTYPE html>  <html> <head>   <title>redis-manager.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               redis-manager.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">/* jshint camelcase: false */</span>
-<span class="kd">var</span> <span class="nx">redis</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;redis&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Hash tables to store references to unique redis clients and how many references there are to them</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">uniqueRedises</span> <span class="o">=</span> <span class="p">{};</span>
-<span class="kd">var</span> <span class="nx">redisRefs</span> <span class="o">=</span> <span class="p">{};</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Calculate a unique ID for each redis client type, based on the redis server to connect to and what options to use</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">redisId</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="nx">host</span> <span class="o">+</span> <span class="nx">port</span> <span class="o">+</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
-<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Return the client's ID, if it exists</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">reverseLookup</span><span class="p">(</span><span class="nx">client</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">client</span><span class="p">.</span><span class="nx">__id__</span> <span class="o">&amp;&amp;</span> <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">client</span><span class="p">.</span><span class="nx">__id__</span><span class="p">]</span> <span class="o">?</span> <span class="nx">client</span><span class="p">.</span><span class="nx">__id__</span> <span class="o">:</span> <span class="kc">null</span><span class="p">;</span>
-<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Request for either a new or existing client and increment the reference count</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">getClient</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">port</span><span class="p">,</span> <span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">;</span>
-    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;string&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">host</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">port</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;object&#39;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">options</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-   
-    <span class="kd">var</span> <span class="nx">id</span> <span class="o">=</span> <span class="nx">redisId</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">])</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Flag subscribe connections as 'different' <a href="https://github.com/mranney/node_redis#publish--subscribe">because you have to have another connection for regular Redis commands</a>
-but don't pass this parameter down to the library. Also make select calls part of the getClient step as that affects the semantics of the client instance</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">if</span><span class="p">(</span><span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">sub</span><span class="p">)</span> <span class="k">delete</span> <span class="nx">options</span><span class="p">.</span><span class="nx">sub</span><span class="p">;</span>
-        <span class="kd">var</span> <span class="nx">selectDB</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">select</span> <span class="o">?</span> <span class="nx">options</span><span class="p">.</span><span class="nx">select</span> <span class="o">:</span> <span class="kc">undefined</span><span class="p">;</span>
-        <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">redis</span><span class="p">.</span><span class="nx">createClient</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
-        <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">].</span><span class="nx">__id__</span> <span class="o">=</span> <span class="nx">id</span><span class="p">;</span>
-        <span class="nx">redisRefs</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">selectDB</span><span class="p">)</span> <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">].</span><span class="nx">select</span><span class="p">(</span><span class="nx">selectDB</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="nx">redisRefs</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
-    <span class="k">return</span> <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">];</span>
-<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Inform redis-manager that this client is no longer needed; welcome back to C-land!</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">freeClient</span><span class="p">(</span><span class="nx">client</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">var</span> <span class="nx">id</span> <span class="o">=</span> <span class="nx">reverseLookup</span><span class="p">(</span><span class="nx">client</span><span class="p">);</span>
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">id</span><span class="p">)</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// Should we throw an error here?</span>
-    <span class="nx">redisRefs</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="o">--</span><span class="p">;</span>
-    <span class="k">if</span><span class="p">(</span><span class="nx">redisRefs</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">client</span><span class="p">.</span><span class="nx">quit</span><span class="p">();</span>
-        <span class="k">delete</span> <span class="nx">redisRefs</span><span class="p">[</span><span class="nx">id</span><span class="p">];</span>
-        <span class="k">delete</span> <span class="nx">uniqueRedises</span><span class="p">[</span><span class="nx">id</span><span class="p">];</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
-<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Public API</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">getClient</span><span class="o">:</span> <span class="nx">getClient</span><span class="p">,</span>
-    <span class="nx">freeClient</span><span class="o">:</span> <span class="nx">freeClient</span><span class="p">,</span>
-    <span class="nx">redis</span><span class="o">:</span> <span class="nx">redis</span> <span class="c1">// For interfacing with redis-lua</span>
-<span class="p">};</span>
+<!DOCTYPE html>
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+<html>
+<head>
+  <title>redis-manager.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>redis-manager.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> redis = require(<span class="string">'redis'</span>);
+<span class="keyword">var</span> binders = require(<span class="string">'binders'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Hash tables to store references to unique redis clients and how many references there are to them</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> uniqueRedises = {};
+<span class="keyword">var</span> redisRefs = {};
+<span class="keyword">var</span> redisEvents = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Calculate a unique ID for each redis client type, based on the redis server to connect to and what options to use</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">redisId</span><span class="params">(port, host, options)</span> {</span>
+    <span class="keyword">return</span> <span class="string">""</span> + host + port + JSON.stringify(options);
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Return the client&#39;s ID, if it exists</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">reverseLookup</span><span class="params">(client)</span> {</span>
+    <span class="keyword">return</span> client.__id__ &amp;&amp; uniqueRedises[client.__id__] ? client.__id__ : <span class="literal">null</span>;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Wrap the client&#39;s <code>on</code> and <code>once</code> EventEmitter methods to make sure we automatically remove no-longer-needed event handlers</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">wrapEventEmitter</span><span class="params">(client, id)</span> {</span>
+    redisEvents[id] = redisEvents[id] || [];
+    <span class="keyword">var</span> count = redisEvents[id].length;
+    redisEvents[id][count] = { on: [], once: [] };
+    <span class="keyword">var</span> redisEventsObj = redisEvents[id][count];
+    client.on = <span class="function"><span class="keyword">function</span> <span class="title">fakeOn</span><span class="params">(event, listener)</span> {</span>
+        redisEventsObj.on.push([event, listener]);
+        client._on(event, listener);
+    };
+    client.addListener = client.on;
+    client.once = <span class="function"><span class="keyword">function</span> <span class="title">fakeOnce</span><span class="params">(event, listener)</span> {</span>
+        redisEventsObj.once.push([event, listener]);
+        client._once(event, listener);
+    };
+    client.removeListener = <span class="function"><span class="keyword">function</span> <span class="title">fakeRemoveListener</span><span class="params">(event, listener)</span> {</span>
+        redisEventsObj.on = redisEventsObj.on.filter(<span class="keyword">function</span>(arr) {
+            <span class="keyword">if</span>(arr[<span class="number">0</span>] === event &amp;&amp; arr[<span class="number">1</span>] === listener) <span class="keyword">return</span> <span class="literal">false</span>;
+            <span class="keyword">return</span> <span class="literal">true</span>;
+        });
+        redisEventsObj.once = redisEventsObj.once.filter(<span class="keyword">function</span>(arr) {
+            <span class="keyword">if</span>(arr[<span class="number">0</span>] === event &amp;&amp; arr[<span class="number">1</span>] === listener) <span class="keyword">return</span> <span class="literal">false</span>;
+            <span class="keyword">return</span> <span class="literal">true</span>;
+        });
+        client._removeListener(event, listener);
+    };
+    client.removeAllListeners = <span class="function"><span class="keyword">function</span> <span class="title">fakeRemoveAllListeners</span><span class="params">(event)</span> {</span>
+        <span class="keyword">if</span>(event) {
+            redisEventsObj.on.filter(<span class="keyword">function</span>(arr) {
+                <span class="keyword">if</span>(arr[<span class="number">0</span>] === event) <span class="keyword">return</span> <span class="literal">true</span>;
+                <span class="keyword">return</span> <span class="literal">false</span>;
+            }).forEach(<span class="keyword">function</span>(arr) {
+                client._removeListener(event, arr[<span class="number">1</span>]);
+            });
+            redisEventsObj.on = [];
+            redisEventsObj.once.filter(<span class="keyword">function</span>(arr) {
+                <span class="keyword">if</span>(arr[<span class="number">0</span>] === event) <span class="keyword">return</span> <span class="literal">true</span>;
+                <span class="keyword">return</span> <span class="literal">false</span>;
+            }).forEach(<span class="keyword">function</span>(arr) {
+                client._removeListener(event, arr[<span class="number">1</span>]);
+            });
+            redisEventsObj.once = [];
+        } <span class="keyword">else</span> {
+            redisEventsObj.on.forEach(<span class="keyword">function</span>(arr) {
+                client._removeListener(arr[<span class="number">0</span>], arr[<span class="number">1</span>]);
+            });
+            redisEventsObj.on = [];
+            redisEventsObj.once.forEach(<span class="keyword">function</span>(arr) {
+                client._removeListener(arr[<span class="number">0</span>], arr[<span class="number">1</span>]);
+            });
+            redisEventsObj.once = [];
+        }
+    };
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Request for either a new or existing client and increment the reference count</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">getClient</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> port, host, options;
+    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; arguments.length; i++) {
+        <span class="keyword">if</span>(<span class="keyword">typeof</span> arguments[i] === <span class="string">'string'</span>) {
+            host = arguments[i];
+        } <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> arguments[i] === <span class="string">'number'</span>) {
+            port = arguments[i];
+        } <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> arguments[i] === <span class="string">'object'</span>) {
+            options = arguments[i];
+        }
+    }
+   
+    <span class="keyword">var</span> id = redisId(port, host, options);
+    <span class="keyword">if</span>(!uniqueRedises[id]) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Flag subscribe connections as &#39;different&#39; <a href="https://github.com/mranney/node_redis#publish--subscribe">because you have to have another connection for regular Redis commands</a>
+but don&#39;t pass this parameter down to the library. Also make select calls part of the getClient step as that affects the semantics of the client instance</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span>(options &amp;&amp; options.sub) <span class="keyword">delete</span> options.sub;
+        <span class="keyword">var</span> selectDB = options &amp;&amp; options.select ? options.select : <span class="literal">undefined</span>;
+        <span class="keyword">if</span>(selectDB) <span class="keyword">delete</span> options.select;
+        uniqueRedises[id] = redis.createClient(port, host, options);
+        uniqueRedises[id].__id__ = id;
+        redisRefs[id] = <span class="number">0</span>;
+        <span class="keyword">if</span>(selectDB) uniqueRedises[id].select(selectDB);
+    }
+    redisRefs[id]++;
+    <span class="keyword">var</span> outRedis = binders(uniqueRedises[id]);
+    outRedis.__id__ = id;
+    outRedis._on = outRedis.on;
+    outRedis._once = outRedis.once;
+    outRedis._removeListener = outRedis.removeListener;
+    outRedis._removeAllListeners = outRedis.removeAllListeners;
+    wrapEventEmitter(outRedis, id);
+    <span class="keyword">return</span> outRedis;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Inform redis-manager that this client is no longer needed; welcome back to C-land!</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">freeClient</span><span class="params">(client)</span> {</span>
+    <span class="keyword">var</span> id = reverseLookup(client);
+    <span class="keyword">if</span>(!id) <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">// Should we throw an error here?</span>
+    redisRefs[id]--;
+    client.removeAllListeners();
+    <span class="keyword">if</span>(redisRefs[id] === <span class="number">0</span>) {
+        client.quit();
+        <span class="keyword">delete</span> redisRefs[id];
+        <span class="keyword">delete</span> uniqueRedises[id];
+    }
+    <span class="keyword">return</span> <span class="literal">true</span>;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Public API</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>module.exports = {
+    getClient: getClient,
+    freeClient: freeClient,
+    redis: redis <span class="comment">// For interfacing with redis-lua</span>
+};</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
