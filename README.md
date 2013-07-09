@@ -1,6 +1,6 @@
 # redis-manager
 
-[![Build Status](https://travis-ci.org/uber/redis-manager.png?branch=master)](https://travis-ci.org/uber/redis-manager) [![Dependency Status](https://david-dm.org/uber/redis-manager.png)](https://david-dm.org/uber/redis-manager) [![Coverage Status](https://coveralls.io/repos/uber/redis-manager/badge.png)](https://coveralls.io/r/uber/redis-manager)
+[![NPM version](https://badge.fury.io/js/redis-manager.png)](http://badge.fury.io/js/redis-manager) [![Dependency Status](https://gemnasium.com/uber/redis-manager.png)](https://gemnasium.com/uber/redis-manager) [![Build Status](https://travis-ci.org/uber/redis-manager.png?branch=master)](https://travis-ci.org/uber/redis-manager) [![Coverage Status](https://coveralls.io/repos/uber/redis-manager/badge.png)](https://coveralls.io/r/uber/redis-manager)
 
 Simple library to share redis clients in a code base
 
