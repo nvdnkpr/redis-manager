@@ -121,6 +121,12 @@ exports.removeListeners = function(test) {
     test.done();
 };
 
+exports.freeNothing = function(test) {
+    test.expect(1);
+    test.equal(redisManager.freeClient(undefined), false, "Doesn't crash redis-manager");
+    test.done();
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();
