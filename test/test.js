@@ -127,6 +127,16 @@ exports.freeNothing = function(test) {
     test.done();
 };
 
+exports.tryToQuit = function(test) {
+    test.expect(1);
+    var client = redisManager.getClient();
+    test.throws(function() {
+        client.quit();
+    });
+    redisManager.freeClient(client);
+    test.done();
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();
