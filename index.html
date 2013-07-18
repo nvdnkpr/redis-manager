@@ -81,7 +81,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">reverseLookup</span><span class="params">(client)</span> {</span>
-    <span class="keyword">return</span> client.__id__ &amp;&amp; uniqueRedises[client.__id__] ? client.__id__ : <span class="literal">null</span>;
+    <span class="keyword">return</span> client &amp;&amp; client.__id__ &amp;&amp; uniqueRedises[client.__id__] ? client.__id__ : <span class="literal">null</span>;
 }</pre></div></div>
             
         </li>
