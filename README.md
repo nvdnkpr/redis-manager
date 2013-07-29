@@ -27,6 +27,10 @@ The Redis library, whenever a `subscribe` method is called, [puts the instance i
 
 Further, whenever a `select` method is called, the semantics of `hset`/`hget`/etc change, and a common redis instance shared between code trying to read/write different databases is a Bad Thing(tm).
 
+### Event Listener Corner Case
+
+If two instances of redis-manager pointing at the same actual client register *the exact same listener* (``listenerA === listenerB``), when the first instance is freed, both registered listeners will be eliminated as it removes listeners created by the instance being freed. This is very unlikely to ever be the case as even identical code between two files wold be considered different functions (because of differing scope), but is possible.
+
 ## License (MIT)
 
 Copyright (C) 2013 by Uber Technologies, Inc
