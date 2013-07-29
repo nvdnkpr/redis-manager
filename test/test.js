@@ -137,6 +137,16 @@ exports.tryToQuit = function(test) {
     test.done();
 };
 
+exports.clientHasNonFuncProperties = function(test) {
+    test.expect(2);
+    var client = redisManager.getClient();
+    test.doesNotThrow(function() {
+        test.equal(client.offline_queue.length, 0, 'can still access non-function properties');
+    });
+    redisManager.freeClient(client);
+    test.done();
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();

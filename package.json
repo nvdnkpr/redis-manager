@@ -15,7 +15,7 @@
 	"main": "lib/redis-manager.js",
     "dependencies": {
         "redis": "*",
-        "binders": "*"
+        "binders": ">=0.1.5"
     },
     "devDependencies": {
         "docco": "*",
