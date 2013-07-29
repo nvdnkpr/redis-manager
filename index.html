@@ -201,16 +201,7 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
         redisRefs[id] = <span class="number">0</span>;
         <span class="keyword">if</span>(selectDB) uniqueRedises[id].select(selectDB);
     }
-    redisRefs[id]++;
-    <span class="keyword">var</span> outRedis = binders(uniqueRedises[id]);
-    outRedis.__id__ = id;
-    outRedis._on = outRedis.on;
-    outRedis._once = outRedis.once;
-    outRedis._removeListener = outRedis.removeListener;
-    outRedis._removeAllListeners = outRedis.removeAllListeners;
-    wrapEventEmitter(outRedis, id);
-    <span class="keyword">return</span> outRedis;
-}</pre></div></div>
+    redisRefs[id]++;</pre></div></div>
             
         </li>
         
@@ -220,6 +211,64 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Binders creates a new object built with methods bound to the original object, so we can alter it at will.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> outRedis = binders(uniqueRedises[id]);
+    outRedis.__id__ = id;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Inform users of redis-manager that they shouldn&#39;t close the clients directly</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    outRedis._quit = outRedis.quit;
+    outRedis._end = outRedis.end;
+    outRedis.quit = <span class="function"><span class="keyword">function</span> <span class="title">throwWarning</span><span class="params">()</span> {</span>
+        <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'redis-manager handles client shutdown, now. Use redisManager.freeClient(client) instead.'</span>);
+    };
+    outRedis.end = outRedis.quit;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>EventEmitter calls are wrapped so when a particular client instance is freed, its event handlers are removed (but not any other instance of the same client&#39;s events)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    outRedis._on = outRedis.on;
+    outRedis._once = outRedis.once;
+    outRedis._removeListener = outRedis.removeListener;
+    outRedis._removeAllListeners = outRedis.removeAllListeners;
+    wrapEventEmitter(outRedis, id);
+
+    <span class="keyword">return</span> outRedis;
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Inform redis-manager that this client is no longer needed; welcome back to C-land!</p>
 
@@ -231,7 +280,7 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
     redisRefs[id]--;
     client.removeAllListeners();
     <span class="keyword">if</span>(redisRefs[id] === <span class="number">0</span>) {
-        client.quit();
+        client._quit();
         <span class="keyword">delete</span> redisRefs[id];
         <span class="keyword">delete</span> uniqueRedises[id];
     }
@@ -241,11 +290,11 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
         </li>
         
         
-        <li id="section-9">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Public API</p>
 
