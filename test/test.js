@@ -147,6 +147,94 @@ exports.clientHasNonFuncProperties = function(test) {
     test.done();
 };
 
+exports.getAllClientsNone = function(test) {
+    test.expect(1);
+    test.equal(redisManager.getAllClients().length, 0);
+    test.done();
+};
+
+exports.getAllClientsSame = function(test) {
+    test.expect(1);
+    var client1 = redisManager.getClient();
+    redisManager.getClient();
+    test.equal(redisManager.getAllClients().length, 1);
+    redisManager.freeClient(client1);
+    redisManager.freeClient(client1);
+    test.done();
+};
+
+exports.getAllClientsDifferent = function(test) {
+    test.expect(1);
+    var client1 = redisManager.getClient();
+    var client2 = redisManager.getClient(6379, 'localhost');
+    test.equal(redisManager.getAllClients().length, 2);
+    redisManager.freeClient(client1);
+    redisManager.freeClient(client2);
+    test.done();
+};
+
+exports.getAllClientsFree = function(test) {
+    test.expect(1);
+    var client1 = redisManager.getClient();
+    var client2 = redisManager.getClient(6379, 'localhost');
+    redisManager.freeClient(client1);
+    test.equal(redisManager.getAllClients().length, 1);
+    redisManager.freeClient(client2);
+    test.done();
+};
+
+exports.forceReconnectEnd = function(test) {
+    test.expect(4);
+
+    var client1 = redisManager.getClient();
+
+    var events = 0;
+    client1.on("ready", function () {
+        test.equal(events++, 0);
+
+        client1.on("end", function () {
+            test.equal(events++, 1);
+        });
+
+        client1.on("connect", function () {
+            test.equal(events++, 2);
+            redisManager.freeClient(client1);
+            test.equal(redisManager.getAllClients().length, 0);
+            test.done();
+        });
+
+        redisManager.forceReconnect();
+    });
+};
+
+exports.forceReconnectWrongHost = function(test) {
+    test.expect(3);
+
+    var client1 = redisManager.getClient();
+
+    var events = 0;
+    client1.on("ready", function () {
+        test.equal(events++, 0);
+
+        client1.on("end", function () {
+            test.fail();
+        });
+
+        client1.on("connect", function () {
+            test.fail();
+        });
+
+        redisManager.forceReconnect(function () { return false; });
+
+        setTimeout(function () {
+            test.equal(events++, 1);
+            redisManager.freeClient(client1);
+            test.equal(redisManager.getAllClients().length, 0);
+            test.done();
+        }, 500);
+    });
+};
+
 exports.jscoverage = function(test) {
     test.expect(1);
     jscoverage.coverageDetail();
