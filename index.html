@@ -175,7 +175,7 @@
             options = arguments[i];
         }
     }
-   
+
     <span class="keyword">var</span> id = redisId(port, host, options);
     <span class="keyword">if</span>(!uniqueRedises[id]) {</pre></div></div>
             
@@ -259,6 +259,13 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
     wrapEventEmitter(outRedis, id);
 
     <span class="keyword">return</span> outRedis;
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">getAllClients</span><span class="params">(wanted)</span> {</span>
+    <span class="keyword">return</span> Object.keys(uniqueRedises).filter(<span class="keyword">typeof</span> wanted === <span class="string">'function'</span> ?
+            wanted : <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span> <span class="keyword">return</span> <span class="literal">true</span>; }).map(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
+        <span class="keyword">return</span> uniqueRedises[key];
+    });
 }</pre></div></div>
             
         </li>
@@ -285,6 +292,15 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
         <span class="keyword">delete</span> uniqueRedises[id];
     }
     <span class="keyword">return</span> <span class="literal">true</span>;
+}
+
+<span class="comment">/*
+ * Force redis reconnect for any client wanted. Defaults to all clients.
+ */</span>
+<span class="function"><span class="keyword">function</span> <span class="title">forceReconnect</span><span class="params">(wanted)</span> {</span>
+    getAllClients(wanted).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(client)</span> {</span>
+        client.stream.end();
+    });
 }</pre></div></div>
             
         </li>
@@ -302,7 +318,9 @@ but don&#39;t pass this parameter down to the library. Also make select calls pa
             
             <div class="content"><div class='highlight'><pre>module.exports = {
     getClient: getClient,
+    getAllClients: getAllClients,
     freeClient: freeClient,
+    forceReconnect: forceReconnect,
     redis: redis <span class="comment">// For interfacing with redis-lua</span>
 };</pre></div></div>
             
