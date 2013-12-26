@@ -268,3 +268,31 @@ exports.jscoverage = function(test) {
     if(process.env.TRAVIS) coveralls.handleInput(lcov);
     test.done();
 };
+
+exports.reconnectForReadonlyError = function(test) {
+    test.expect(4);
+
+    var errorMessage = "READONLY You can't write against a read only slave.";
+    var client1 = redisManager.getClient('localhost', 6379, {
+        forceReconnectForReadonlyErrors: true
+    });
+    client1.__client__.original_send_command = function (command, args, callback) {
+        callback(new Error(errorMessage));
+    };
+    client1.__client__.stream.end = function () {
+        test.ok(true);
+    };
+
+    client1.on("end", function () {
+        test.ok(true);
+    });
+
+    client1.set('asdf', 'asdf', function (err) {
+        test.ok(err);
+        test.equal(err.message, errorMessage);
+        process.nextTick(function () {
+            redisManager.freeClient(client1);
+            test.done();
+        });
+    });
+};
